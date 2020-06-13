@@ -1,0 +1,199 @@
+﻿<Window x:Class="FITSExplorer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:local="clr-namespace:FileSystemExplorerUserControl;assembly=FileSystemExplorerUserControl"
+        Title="FITS Explorer" 
+        ResizeMode="CanResize"
+        WindowStartupLocation="Manual" 
+        Closing="Window_Closing"
+        mc:Ignorable="d" 
+        d:DesignHeight="580" 
+        d:DesignWidth="1138" 
+        MinWidth="995" 
+        MinHeight="580">
+
+    <!-- See App.xaml for the definition of custom styles, etc. -->
+    
+    <Window.Resources>
+        
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".5*" Name="gridColumnDefLeftPane" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width=".5*" Name="gridColumnDefRightPane" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" Name="gridRowDefTopPane" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" Name="gridRowDefBottomPane" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Name="groupBoxFileList" Header="Folders" Margin="5,0,5,5" Grid.Column="0" Grid.Row="0" >
+            <GroupBox.ContextMenu>
+                <ContextMenu Name="contextMenuFileSystem">
+                    <MenuItem Header="Maximize/Restore File System Pane Size (Alt+I)" Click="Menu_FileSystem_TogglePane_Click" />
+                    <MenuItem Header="Full Screen (On/Off)(Alt+F)" Click="Menu_FullScreen_Click" />
+                    <MenuItem Header="Hide File System Pane (Alt+H)" Click="Menu_FileSystem_HidePane_Click" />
+                    <MenuItem Header="Cancel" />
+                </ContextMenu>
+            </GroupBox.ContextMenu>
+            
+            <local:FileSystemExplorer x:Name="fileSystemExplorer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ToolTip="Right-click for File System options" />
+        </GroupBox>
+
+        <GroupBox Name="groupBoxProperties" Header="Properties" Margin="5,0,5,5" Grid.Column="0" Grid.Row="2" >
+            <ListView 
+                Name="listViewFTSHeader" 
+                Margin="3" 
+                ItemsSource="{Binding}" 
+                ToolTip="Right-click for FITS Header options" 
+                VerticalAlignment="Stretch" 
+                HorizontalAlignment="Stretch">
+                <ListView.ContextMenu>
+                    <ContextMenu Name="contextMenuHeader">
+                        <MenuItem Header="Maximize/Restore FITS Header Pane Size (Alt+H)" Click="Menu_Header_TogglePane_Click" />
+                        <MenuItem Header="Full Screen (On/Off)(Alt+F)" Click="Menu_FullScreen_Click" />
+                        <MenuItem Header="Hide FITS Header Pane (Alt+I)" Click="Menu_Header_HidePane_Click" />
+                        <MenuItem Header="Export FITS Header As Text" Click="Menu_Header_ExportText_Click" />
+                        <MenuItem Header="Export FITS Header As CSV" Click="Menu_Header_ExportCSV_Click" />
+                        <MenuItem Header="Export FITS Header To Microsoft Excel" Click="Menu_Header_ExportExcel_Click" />
+                        <MenuItem Header="Cancel" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn x:Name="keyColumn" DisplayMemberBinding="{Binding Path=Key}" Header="Key" />
+                        <GridViewColumn x:Name="valeColumn" DisplayMemberBinding="{Binding Path=Value}" Header="Value" />
+                        <GridViewColumn x:Name="commentColumn" DisplayMemberBinding="{Binding Path=Comment}" Header="Comment" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </GroupBox>
+        
+        <Grid Grid.Column="2" Grid.RowSpan="3" Margin="5,10,0,5">
+            <TabControl 
+                Height="Auto" 
+                HorizontalAlignment="Stretch" 
+                Margin="5,0,5,0" 
+                Name="tabControl" 
+                VerticalAlignment="Stretch" 
+                Width="Auto">
+                
+                <TabItem Header="Thumbnails" Name="tabItemThumbs" Selector.IsSelected="False">
+                    <TabItem.ContextMenu>
+                        <ContextMenu Name="contextMenuImageThumbnails">
+                            <MenuItem Header="Maximize/Restore Thumbnail Pane Size (Alt+P)" Click="Menu_Preview_TogglePreview_Click" />
+                            <MenuItem Header="Full Screen (On/Off)(Alt+F)" Click="Menu_FullScreen_Click" />
+                            <MenuItem Header="Cancel" />
+                        </ContextMenu>
+                    </TabItem.ContextMenu>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="30" />
+                        </Grid.RowDefinitions>
+                        
+                        <ListView 
+                            Name="listViewThumbnails" 
+                            Grid.Row="0" 
+                            Style="{StaticResource CustomListView}" 
+                            ItemTemplate="{StaticResource ItemTemplate}" 
+                            SelectionChanged="listViewThumbnails_SelectionChanged" ToolTip="Right-click for Thumbnail options" />
+
+                        <Slider 
+                            Name="sliderThumbnailSize" 
+                            Grid.Row="1" 
+                            Style="{StaticResource ScreenStretchSliderWhite}" 
+                            Height="17" 
+                            Minimum="50"
+                            Maximum="500"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" 
+                            Width="300" SmallChange="1" 
+                            Value="150"
+                            Margin="0,0,0,0" ValueChanged="sliderThumbnailSize_ValueChanged" />
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Preview" Name="tabItemPreview" Selector.IsSelected="False">              
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="50" />
+                        </Grid.RowDefinitions>
+                            
+                        <Image Grid.Row="0" Name="imagePreview" Margin="3" ToolTip="Right-click for Image Preview options" >
+                            <Image.ContextMenu>
+                                <ContextMenu Name="contextMenuImagePreview">
+                                    <MenuItem Header="Maximize/Restore Preview Pane Size (Alt+P)" Click="Menu_Preview_TogglePreview_Click" />
+                                    <MenuItem Header="Full Screen (On/Off)(Alt+F)" Click="Menu_FullScreen_Click" />
+                                    <MenuItem Header="Save Image As Jpeg...(Ctrl+S)" Click="Menu_Preview_SaveAs_Click" />
+                                    <MenuItem Header="Rotate Image Clockwise 90 Degrees (Alt+R)" Click="Menu_Preview_Rotate90Right_Click" />
+                                    <MenuItem Header="Rotate Image Counter-Clockwise 90 Degrees (Alt+L)" Click="Menu_Preview_Rotate90Left_Click" />
+                                    <MenuItem Header="Cancel" />
+                                </ContextMenu>
+                            </Image.ContextMenu>
+                        </Image>
+
+                        <Slider 
+                            Grid.Row="1" 
+                            Style="{StaticResource ScreenStretchSliderWhite}" 
+                            Height="17" 
+                            HorizontalAlignment="Stretch" 
+                            Name="sliderScreenStretchWhite" 
+                            VerticalAlignment="Stretch" 
+                            ValueChanged="sliderScreenStretchWhite_ValueChanged" 
+                            SmallChange="1" 
+                            Value="0" 
+                            Margin="6,27,6,6" />
+                        
+                        <Slider 
+                            Grid.Row="1" 
+                            Style="{StaticResource ScreenStretchSliderBlack}" 
+                            Height="17" 
+                            HorizontalAlignment="Stretch" 
+                            Name="sliderScreenStretchBlack" 
+                            VerticalAlignment="Stretch" 
+                            ValueChanged="sliderScreenStretchBlack_ValueChanged" 
+                            SmallChange="1" 
+                            Value="0" 
+                            Margin="6,9,6,24" /> 
+                        
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>                
+ 
+        <GridSplitter 
+            Name="gridSplitterCol"
+            IsTabStop="False"
+            HorizontalAlignment="Left" 
+            Margin="5,4,0,6" 
+            VerticalAlignment="Stretch" 
+            Grid.Column="1" 
+            Grid.RowSpan="3" 
+            ResizeBehavior="PreviousAndNext" 
+            Width="5" 
+            Background="#FFD5DFE5"/>
+
+        <GridSplitter 
+            Name="gridSplitterRow" 
+            IsTabStop="False"
+            HorizontalAlignment="Stretch" 
+            Margin="5,4,-5,6" 
+            VerticalAlignment="Stretch" 
+            Grid.Column="0" 
+            Grid.Row="1"
+            ResizeBehavior="PreviousAndNext" 
+            ResizeDirection="Rows"
+            Width="Auto" 
+            Height="5"
+            Background="#FFD5DFE5" 
+            HorizontalContentAlignment="Stretch" />
+    </Grid>
+</Window>
